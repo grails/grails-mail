@@ -87,9 +87,6 @@ sendMail {
         } 
     }
     
-
-
-
     void onConfigChange(Map<String, Object> event) {
         ConfigObject newMailConfig = event.source.grails.mail
         Integer newMailConfigHash = newMailConfig.hashCode()
@@ -127,6 +124,12 @@ sendMail {
                 createdSession = false
             }
 
+            /*
+            * This is the workaround to convert nested map of mail config props to single level map with dots in keys.
+            * eg: [a: [b: 'c']  -> [ 'a.b': 'c']
+            * */
+            config.props = convertNestedMapToSingleLevelMap(config.props)
+
             mailSender(JavaMailSenderImpl) {
                 if (config.host) {
                     host = config.host
@@ -161,4 +164,25 @@ sendMail {
         }
     }
 
+    static Map convertNestedMapToSingleLevelMap(Map inputMap) {
+        inputMap?.inject([:]) { Map m, key, value ->
+            if (value instanceof Map) {
+                m.putAll(convertMapToSingleLevel(key, value))
+            } else {
+                m.put(key, value)
+            }
+            m
+        } as Map
+    }
+
+    static Map convertMapToSingleLevel(String parentKey, Map mapValue) {
+        mapValue?.inject([:]) { Map singleLevelMap, key, value ->
+            if (value instanceof Map) {
+                singleLevelMap.putAll convertMapToSingleLevel("$parentKey.$key", value)
+            } else {
+                singleLevelMap.put("$parentKey.$key", value)
+            }
+            singleLevelMap
+        } as Map
+    }
 }
