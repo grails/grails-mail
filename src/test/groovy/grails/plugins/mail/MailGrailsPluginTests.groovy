@@ -36,6 +36,17 @@ class MailGrailsPluginTests extends GroovyTestCase {
                  'mail.smtp.socketFactory.port'    : 465,
                  'mail.smtp.socketFactory.class'   : 'javax.net.ssl.SSLSocketFactory',
                  'mail.smtp.socketFactory.fallback': 'false'])
+        compare(
+            convertNestedMapToSingleLevelMap(['mail.smtp.auth'                  : true,
+                 'mail.smtp.socketFactory.port'    : 465,
+                 'mail.smtp.socketFactory.class'   : 'javax.net.ssl.SSLSocketFactory',
+                 'mail.smtp.socketFactory.fallback': 'false']),
+            
+                ['mail.smtp.auth'                  : true,
+                 'mail.smtp.socketFactory.port'    : 465,
+                 'mail.smtp.socketFactory.class'   : 'javax.net.ssl.SSLSocketFactory',
+                 'mail.smtp.socketFactory.fallback': 'false']
+        )
     }
 
     void testConvertMapToSingleLevel() {
