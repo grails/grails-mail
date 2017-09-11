@@ -17,6 +17,7 @@ package grails.plugins.mail
 
 import grails.test.mixin.TestMixin
 import grails.test.mixin.support.GrailsUnitTestMixin
+import org.springframework.context.support.StaticMessageSource
 import org.springframework.mail.MailSender
 import org.springframework.mail.javamail.JavaMailSender
 import org.springframework.web.context.support.ServletContextResource
@@ -276,6 +277,27 @@ class MailMessageBuilderSpec extends Specification {
 		}
 		then:
 		thrown(FileNotFoundException)
+	}
+
+	void "Test subject and text codes using message source"() {
+		setup:
+		def staticMessageSource = new StaticMessageSource()
+		staticMessageSource.addMessages([
+				'mail.subject': 'Hallo {0}',
+				'mail.text': 'Wie geht es dir?'
+		], Locale.GERMAN)
+
+		when:
+		processDsl {
+			messageSource staticMessageSource
+			locale Locale.GERMAN
+			subject message('mail.subject', 'Fred')
+			text message('mail.text')
+		}
+		then:
+		def msg = testJavaMailSenderBuilder.message.mimeMessage
+		msg.subject == 'Hallo Fred'
+		msg.content == 'Wie geht es dir?'
 	}
 
 	@Issue("for issue GPMAIL-60")

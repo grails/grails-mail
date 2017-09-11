@@ -19,6 +19,7 @@ import com.sun.mail.smtp.SMTPMessage
 import grails.config.Config
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.springframework.context.MessageSource
 import org.springframework.core.io.ByteArrayResource
 import org.springframework.core.io.FileSystemResource
 import org.springframework.core.io.InputStreamSource
@@ -55,6 +56,7 @@ class MailMessageBuilder {
     private MailMessage message
     private MimeMessageHelper helper
     private Locale locale
+    private MessageSource messageSource
 
     private String textContent
     private String htmlContent
@@ -71,9 +73,10 @@ class MailMessageBuilder {
         InputStreamSource toAdd
     }
 
-    MailMessageBuilder(MailSender mailSender, Config config, MailMessageContentRenderer mailMessageContentRenderer = null) {
+    MailMessageBuilder(MailSender mailSender, Config config, MailMessageContentRenderer mailMessageContentRenderer = null, MessageSource messageSource = null) {
         this.mailSender = mailSender
         this.mailMessageContentRenderer = mailMessageContentRenderer
+        this.messageSource = messageSource
 
         this.overrideAddress = config.getProperty('grails.mail.overrideAddress')
         this.defaultFrom = overrideAddress ?: config.getProperty('grails.mail.default.from')
@@ -135,6 +138,15 @@ class MailMessageBuilder {
         }
 
         message
+    }
+
+    void messageSource(MessageSource messageSource) {
+        this.messageSource = messageSource
+    }
+
+    String message(String code, Object... args) {
+        Assert.notNull(messageSource, "no messageSource set")
+        messageSource.getMessage(code, args, locale)
     }
 
     void multipart(boolean multipart) {
