@@ -17,3 +17,26 @@ An alternative to disabling email or using something like the "greenmail plugin"
 {code}
 grails.mail.overrideAddress = "test@address.com"
 {code}
+
+h3. GSP Configuration
+
+If you're using GSP views to render HTML emails, you will need to configure the GSP plugin. 
+
+GSP was previously part of Grails core, but since version 3.3 it is an independent Grails plugin that can be used by defining the following dependency in your build.gradle:
+
+build.gradle
+
+{code}
+dependencies {
+    ...
+    implementation "org.grails.plugins:gsp:5.0.1"
+}
+{code}
+
+In addition for production compilation you should apply the grails-gsp Gradle plugin:
+
+build.gradle
+
+{code}
+apply plugin:"org.grails.grails-gsp"
+{code}
