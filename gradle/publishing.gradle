@@ -56,7 +56,7 @@ publishing {
                     developer {
                         id = 'sbglasius'
                         name = 'Søren Berg Glasius'
-                        email = 'glasiuss@ociweb.com'
+                        email = 'soeren@glasius.dk'
                     }
                     developer {
                         id = 'matrei'

@@ -49,7 +49,7 @@ sendMail {
         [name: 'Jeff Brown', email: 'brownj@ociweb.com'],
         [name: 'Graeme Rocher', email: 'rocherg@ociweb.com'],
         [name: 'Marc Palmer', email: 'marc@grailsrocks.com'],
-        [name: 'Søren Berg Glasius', email: 'glasiuss@ociweb.com'],
+        [name: 'Søren Berg Glasius', email: 'soeren@glasius.dk'],
         [name: 'Mattias Reichel', email: 'mattias.reichel@gmail.com']
     ]
 
