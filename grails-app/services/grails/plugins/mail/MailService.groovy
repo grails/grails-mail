@@ -1,5 +1,5 @@
 /*
- * Copyright 2008-2024 the original author or authors.
+ * Copyright 2008 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,10 +20,13 @@ import groovy.transform.CompileStatic
 import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.DisposableBean
 import org.springframework.beans.factory.InitializingBean
+import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.boot.context.properties.bind.Bindable
 import org.springframework.boot.context.properties.bind.Binder
+import org.springframework.boot.context.properties.source.ConfigurationPropertySource
 import org.springframework.boot.context.properties.source.ConfigurationPropertySources
 import org.springframework.core.env.PropertiesPropertySource
+import org.springframework.core.env.PropertySource
 import org.springframework.mail.MailMessage
 
 import java.util.concurrent.LinkedBlockingQueue
@@ -37,23 +40,27 @@ import java.util.concurrent.TimeUnit
 @CompileStatic
 class MailService implements InitializingBean, DisposableBean {
 
+    static transactional = false
+
 	MailConfigurationProperties mailConfigurationProperties
     MailMessageBuilderFactory mailMessageBuilderFactory
-
-	private ThreadPoolExecutor mailExecutorService
+	ThreadPoolExecutor mailExecutorService
 
 	private static final Integer DEFAULT_POOL_SIZE = 5
+
 	private static final Bindable<MailConfigurationProperties> CONFIG_BINDABLE = Bindable.of(MailConfigurationProperties)
 
     MailMessage sendMail(MailConfigurationProperties properties, @DelegatesTo(strategy = Closure.DELEGATE_FIRST, value = MailMessageBuilder) Closure callable) {
-        if (disabled) {
-            log.warn('Sending emails disabled by configuration option')
-            return null
+        if (isDisabled()) {
+            log.warn("Sending emails disabled by configuration option")
+            return
         }
-        def messageBuilder = mailMessageBuilderFactory.createBuilder(properties)
+
+        MailMessageBuilder messageBuilder = mailMessageBuilderFactory.createBuilder(properties)
         callable.delegate = messageBuilder
         callable.resolveStrategy = Closure.DELEGATE_FIRST
         callable.call(messageBuilder)
+
         return messageBuilder.sendMessage(mailExecutorService)
     }
 
@@ -66,9 +73,9 @@ class MailService implements InitializingBean, DisposableBean {
     }
 
 	private static MailConfigurationProperties toMailProperties(Config config) {
-		def propertySource = new PropertiesPropertySource('mailProperties', config.toProperties())
-		def configurationPropertySources = ConfigurationPropertySources.from(propertySource)
-		def binder = new Binder(configurationPropertySources)
+		PropertySource propertySource = new PropertiesPropertySource('mailProperties', config.toProperties())
+		Iterable<ConfigurationPropertySource> configurationPropertySources = ConfigurationPropertySources.from(propertySource)
+		Binder binder = new Binder(configurationPropertySources)
 		return binder.bind(MailConfigurationProperties.PREFIX, CONFIG_BINDABLE).get()
 	}
 
@@ -82,15 +89,21 @@ class MailService implements InitializingBean, DisposableBean {
 	}
 
 	@Override
-	void destroy() throws Exception {
+	public void destroy() throws Exception {
 		mailExecutorService.shutdown()
-		mailExecutorService.awaitTermination(10, TimeUnit.SECONDS)
+		mailExecutorService.awaitTermination(10, TimeUnit.SECONDS);
 	}
 
 	@Override
-	void afterPropertiesSet() throws Exception {
+	public void afterPropertiesSet() throws Exception {
 		mailExecutorService = new ThreadPoolExecutor(1, 1, 60, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>())
-		mailExecutorService.allowCoreThreadTimeOut(true)
-		setPoolSize(mailConfigurationProperties.poolSize)
+
+		Integer poolSize = mailConfigurationProperties.poolSize
+		try{
+			((ThreadPoolExecutor)mailExecutorService).allowCoreThreadTimeOut(true)
+		}catch(MissingMethodException e){
+			log.info("ThreadPoolExecutor.allowCoreThreadTimeOut method is missing; Java < 6 must be running. The thread pool size will never go below ${poolSize}, which isn't harmful, just a tiny bit wasteful of resources.", e)
+		}
+		setPoolSize(poolSize)
 	}
 }
