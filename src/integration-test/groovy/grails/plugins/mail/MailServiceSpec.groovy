@@ -1,5 +1,5 @@
 /*
- * Copyright 2004-2024 the original author or authors.
+ * Copyright 2004-2005 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,8 +18,9 @@ package grails.plugins.mail
 
 import com.icegreen.greenmail.util.GreenMail
 import com.icegreen.greenmail.util.ServerSetupTest
+import grails.core.GrailsApplication
 import grails.testing.mixin.integration.Integration
-import org.grails.io.support.ClassPathResource
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.core.io.FileSystemResource
 import org.springframework.mail.MailMessage
 import org.springframework.mail.MailSender
@@ -40,23 +41,28 @@ import javax.mail.internet.MimeMultipart
 @Integration
 class MailServiceSpec extends Specification  {
 
+    static transactional = false
+
     MailService mimeCapableMailService
     MailService nonMimeCapableMailService
-    MailMessageContentRenderer mailMessageContentRenderer
+    @Autowired
+    MailMessageContentRenderer mailMessageContentRenderer // autowired
+    @Autowired
+    GrailsApplication grailsApplication // autowired
 
 	@Shared
-    GreenMail greenMail = new GreenMail(ServerSetupTest.SMTP)
+    public GreenMail greenMail = new GreenMail(ServerSetupTest.SMTP)
+
 
     def setupSpec() {
       greenMail.start()
+      Thread.sleep(3000)
     }
-
     def cleanupSpec() {
       greenMail.stop()
     }
-
     def setup() {
-        def mimeMailSender = new JavaMailSenderImpl(host: "localhost", port: ServerSetupTest.SMTP.port)
+        MailSender mimeMailSender = new JavaMailSenderImpl(host: "localhost", port: ServerSetupTest.SMTP.port)
         MailMessageBuilderFactory mimeMessageBuilderFactor = new MailMessageBuilderFactory(
             mailSender: mimeMailSender,
             mailMessageContentRenderer: mailMessageContentRenderer
@@ -447,7 +453,7 @@ class MailServiceSpec extends Specification  {
     void testInlineAttachment() {
       when:
 
-        byte[] bytes = new ClassPathResource('assets/grailslogo.png').inputStream.bytes
+        byte[] bytes = new File("src/integration-test/groovy/grails/plugins/mail/grailslogo.png").bytes
 
         MailMessage message = mimeCapableMailService.sendMail {
             multipart true
@@ -550,7 +556,7 @@ class MailServiceSpec extends Specification  {
         MimeMailMessage message = mimeCapableMailService.sendMail {
             to "fred@g2one.com"
             subject "Hello John"
-            body(view: '/test', model: [msg: 'hello'])
+            body(view: '/_testemails/test', model: [msg: 'hello'])
         }
         then:
         message.getMimeMessage().getSubject() == "Hello John"
