@@ -8,7 +8,7 @@ on:
   pull_request:
     types: [opened, reopened, synchronize, labeled]
   pull_request_target:
-    types: [opened, reopened, synchronize, labeled]       
+    types: [opened, reopened, synchronize, labeled]
   workflow_dispatch:
 jobs:
   release_notes:

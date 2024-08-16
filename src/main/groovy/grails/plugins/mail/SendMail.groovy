@@ -27,10 +27,10 @@ import org.springframework.mail.MailMessage
 @Enhances([DefaultGrailsServiceClass.SERVICE, DefaultGrailsControllerClass.CONTROLLER])
 trait SendMail {
 
-	@Autowired
-	ApplicationContext applicationContext
+    @Autowired
+    ApplicationContext applicationContext
 
-	MailMessage sendMail(@DelegatesTo(strategy = Closure.DELEGATE_FIRST, value = MailMessageBuilder) Closure dsl) {
+    MailMessage sendMail(@DelegatesTo(strategy = Closure.DELEGATE_FIRST, value = MailMessageBuilder) Closure dsl) {
         applicationContext.getBean('mailService', MailService).sendMail(dsl)
-	}
+    }
 }

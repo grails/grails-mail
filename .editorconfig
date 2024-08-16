@@ -1,0 +1,57 @@
+# EditorConfig helps developers define and maintain consistent coding styles between different editors and IDEs
+# editorconfig.org
+
+root = true
+
+[*]
+indent_style = space
+indent_size = 4
+
+# We recommend you to keep these unchanged
+end_of_line = lf
+charset = utf-8
+trim_trailing_whitespace = true
+insert_final_newline = true
+
+[*.js]
+indent_size = 2
+
+[*.xml]
+indent_size = 4
+
+[*.groovy]
+indent_size = 4
+
+[*.gsp]
+indent_size = 2
+
+[*.md]
+trim_trailing_whitespace = false
+indent_size = 4
+
+[*.{yml,yaml}]
+indent_size = 2
+
+[*.json]
+indent_size = 2
+
+[*.gdoc]
+indent_size = 2
+
+[*.html]
+indent_size = 2
+
+[*.css]
+indent_size = 2
+
+[.github/release-drafter.yml]
+insert_final_newline = false
+
+[.github/renovate.json]
+insert_final_newline = false
+
+[gradle/libs.versions.toml]
+insert_final_newline = false
+
+[grails-app/i18n/*.properties]
+insert_final_newline = false

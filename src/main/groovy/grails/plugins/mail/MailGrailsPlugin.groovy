@@ -18,7 +18,7 @@ package grails.plugins.mail
 import grails.plugins.Plugin
 
 class MailGrailsPlugin extends Plugin {
-    
+
     def grailsVersion = '6.0.0 > *'
     def author = 'The Grails team'
     def authorEmail = 'info@grails.org'
