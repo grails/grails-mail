@@ -19,6 +19,8 @@ package grails.plugins.mail
 import com.icegreen.greenmail.util.GreenMail
 import com.icegreen.greenmail.util.ServerSetupTest
 import grails.testing.mixin.integration.Integration
+import groovy.xml.XmlSlurper
+import groovy.xml.slurpersupport.GPathResult
 import org.grails.io.support.ClassPathResource
 import org.springframework.core.io.FileSystemResource
 import org.springframework.mail.MailMessage
@@ -198,7 +200,7 @@ class MailServiceSpec extends Specification  {
 
     void testSendMailWithEnvelopeFrom() {
         given:
-        def message = mimeCapableMailService.sendMail {
+        MailMessage message = mimeCapableMailService.sendMail {
             to "fred@g2one.com"
             title "Hello John"
             body 'this is some text'
@@ -207,7 +209,7 @@ class MailServiceSpec extends Specification  {
         }
         when:
         def msg = message.mimeMessage
-        def greenMsg = greenMail.getReceivedMessages()[0]
+        MimeMessage greenMsg = greenMail.getReceivedMessages()[0]
         then:
         msg.getSubject() == "Hello John"
         msg.getFrom()[0].toString() == "king@g2one.com"
@@ -233,7 +235,7 @@ class MailServiceSpec extends Specification  {
             to "fred@g2one.com"
             subject "Hello John"
             html '<b>Hello</b> World'
-        }
+        } as MimeMailMessage
         then:
         message.getMimeMessage().getSubject() == "Hello John"
         message.mimeMessage.contentType.startsWith('text/html')
@@ -246,7 +248,7 @@ class MailServiceSpec extends Specification  {
             to "fred@g2one.com"
             subject "Hello John"
             body(view: '/_testemails/test', model: [msg: 'hello'])
-        }
+        } as MimeMailMessage
         then:
         message.getMimeMessage().getSubject() == "Hello John"
         message.mimeMessage.contentType.startsWith('text/plain')
@@ -259,7 +261,7 @@ class MailServiceSpec extends Specification  {
             to "fred@g2one.com"
             subject "Hello John"
             text view: '/_testemails/test', model: [msg: 'hello']
-        }
+        } as MimeMailMessage
         then:
         message.mimeMessage.contentType.startsWith('text/plain')
         message.getMimeMessage().getContent().trim() == 'Message is: hello'
@@ -271,7 +273,7 @@ class MailServiceSpec extends Specification  {
             to "fred@g2one.com"
             subject "Hello John"
             html view: '/_testemails/testhtml', model: [msg: 'hello']
-        }
+        } as MimeMailMessage
         then:
         message.getMimeMessage().getSubject() == "Hello John"
         message.mimeMessage.contentType.startsWith('text/html')
@@ -284,7 +286,7 @@ class MailServiceSpec extends Specification  {
             to "fred@g2one.com"
             subject "Hello John"
             body(view: '/_testemails/testhtml', model: [msg: 'hello'])
-        }
+        } as MimeMailMessage
         then:
         message.getMimeMessage().getSubject() == "Hello John"
         message.mimeMessage.contentType.startsWith('text/html')
@@ -297,12 +299,12 @@ class MailServiceSpec extends Specification  {
             to "fred@g2one.com"
             subject "Hello John"
             body(view: '/_testemails/tagtest', model: [condition: true])
-        }
+        } as MimeMailMessage
         MimeMailMessage message2 = mimeCapableMailService.sendMail {
             to "fred@g2one.com"
             subject "Hello John"
             body(view: '/_testemails/tagtest', model: [condition: false])
-        }
+        } as MimeMailMessage
         then:
 
         message.getMimeMessage().getSubject() == "Hello John"
@@ -318,7 +320,7 @@ class MailServiceSpec extends Specification  {
             to "fred@g2one.com"
             subject "Hello John"
             body(view: '/_testemails/test')
-        }
+        } as MimeMailMessage
         then:
         message.getMimeMessage().getSubject() == "Hello John"
         message.getMimeMessage().getContentType()?.startsWith('text/plain')
@@ -384,9 +386,9 @@ class MailServiceSpec extends Specification  {
         }
         MimeMessage msg = ((MimeMailMessage)message).mimeMessageHelper.mimeMessage
         MimeMessage msg2 = ((MimeMailMessage)message2).mimeMessageHelper.mimeMessage
-        final def slurper = new XmlSlurper()
-        def html = slurper.parseText(msg.content)
-        def html2 = slurper.parseText(msg2.content)
+        final XmlSlurper slurper = new XmlSlurper()
+        GPathResult html = slurper.parseText(msg.content as String)
+        GPathResult html2 = slurper.parseText(msg2.content as String)
         then:
         html.body.toString() == 'Translate this: Luis'
         html2.body.toString() == 'Traduis ceci: Luis'
@@ -523,8 +525,8 @@ class MailServiceSpec extends Specification  {
         content.getBodyPart(0) instanceof MimeBodyPart
 
         and:
-        MimeBodyPart mimeBodyPart = content.getBodyPart(0)
-        MimeMultipart mp = mimeBodyPart.content
+        MimeBodyPart mimeBodyPart = content.getBodyPart(0) as MimeBodyPart
+        MimeMultipart mp = mimeBodyPart.content as MimeMultipart
 
         mp.count == 2
         mp.getBodyPart(0) instanceof MimeBodyPart
@@ -545,7 +547,7 @@ class MailServiceSpec extends Specification  {
             to "fred@g2one.com"
             subject "Hello John"
             body(view: '/test', model: [msg: 'hello'])
-        }
+        } as MimeMailMessage
         then:
         message.getMimeMessage().getSubject() == "Hello John"
         message.mimeMessage.contentType.startsWith('text/plain') == true
