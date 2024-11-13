@@ -1,3 +1,7 @@
+# Important!
+
+Grails Mail plugin is now maintained under the [Grails Plugin Collective](https://github.com/gpc/grails-mail)
+
 # Grails Mail Plugin
 
 [![Maven Central](https://img.shields.io/maven-central/v/org.grails.plugins/mail.svg?label=Maven%20Central)](https://central.sonatype.com/artifact/org.grails.plugins/mail)
