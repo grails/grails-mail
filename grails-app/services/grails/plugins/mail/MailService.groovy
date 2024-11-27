@@ -37,13 +37,13 @@ import java.util.concurrent.TimeUnit
 @CompileStatic
 class MailService implements InitializingBean, DisposableBean {
 
-	MailConfigurationProperties mailConfigurationProperties
+    MailConfigurationProperties mailConfigurationProperties
     MailMessageBuilderFactory mailMessageBuilderFactory
 
-	private ThreadPoolExecutor mailExecutorService
+    private ThreadPoolExecutor mailExecutorService
 
-	private static final Integer DEFAULT_POOL_SIZE = 5
-	private static final Bindable<MailConfigurationProperties> CONFIG_BINDABLE = Bindable.of(MailConfigurationProperties)
+    private static final Integer DEFAULT_POOL_SIZE = 5
+    private static final Bindable<MailConfigurationProperties> CONFIG_BINDABLE = Bindable.of(MailConfigurationProperties)
 
     MailMessage sendMail(MailConfigurationProperties properties, @DelegatesTo(strategy = Closure.DELEGATE_FIRST, value = MailMessageBuilder) Closure callable) {
         if (disabled) {
@@ -57,40 +57,40 @@ class MailService implements InitializingBean, DisposableBean {
         return messageBuilder.sendMessage(mailExecutorService)
     }
 
-	MailMessage sendMail(Config config, @DelegatesTo(strategy = Closure.DELEGATE_FIRST, value = MailMessageBuilder) Closure callable) {
-		return sendMail(toMailProperties(config), callable)
-	}
+    MailMessage sendMail(Config config, @DelegatesTo(strategy = Closure.DELEGATE_FIRST, value = MailMessageBuilder) Closure callable) {
+        return sendMail(toMailProperties(config), callable)
+    }
 
     MailMessage sendMail(@DelegatesTo(strategy = Closure.DELEGATE_FIRST, value = MailMessageBuilder) Closure callable) {
         return sendMail(mailConfigurationProperties, callable)
     }
 
-	private static MailConfigurationProperties toMailProperties(Config config) {
-		def propertySource = new PropertiesPropertySource('mailProperties', config.toProperties())
-		def configurationPropertySources = ConfigurationPropertySources.from(propertySource)
-		def binder = new Binder(configurationPropertySources)
-		return binder.bind(MailConfigurationProperties.PREFIX, CONFIG_BINDABLE).get()
-	}
-
-    boolean isDisabled() {
-        mailConfigurationProperties.disabled
+    private static MailConfigurationProperties toMailProperties(Config config) {
+        def propertySource = new PropertiesPropertySource('mailProperties', config.toProperties())
+        def configurationPropertySources = ConfigurationPropertySources.from(propertySource)
+        def binder = new Binder(configurationPropertySources)
+        return binder.bind(MailConfigurationProperties.PREFIX, CONFIG_BINDABLE).get()
     }
 
-	void setPoolSize(Integer poolSize){
-		mailExecutorService.setMaximumPoolSize(poolSize ?: DEFAULT_POOL_SIZE)
-		mailExecutorService.setCorePoolSize(poolSize ?: DEFAULT_POOL_SIZE)
-	}
+    boolean isDisabled() {
+        return mailConfigurationProperties.disabled
+    }
 
-	@Override
-	void destroy() throws Exception {
-		mailExecutorService.shutdown()
-		mailExecutorService.awaitTermination(10, TimeUnit.SECONDS)
-	}
+    void setPoolSize(Integer poolSize) {
+        mailExecutorService.setMaximumPoolSize(poolSize ?: DEFAULT_POOL_SIZE)
+        mailExecutorService.setCorePoolSize(poolSize ?: DEFAULT_POOL_SIZE)
+    }
 
-	@Override
-	void afterPropertiesSet() throws Exception {
-		mailExecutorService = new ThreadPoolExecutor(1, 1, 60, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>())
-		mailExecutorService.allowCoreThreadTimeOut(true)
-		setPoolSize(mailConfigurationProperties.poolSize)
-	}
+    @Override
+    void destroy() throws Exception {
+        mailExecutorService.shutdown()
+        mailExecutorService.awaitTermination(10, TimeUnit.SECONDS)
+    }
+
+    @Override
+    void afterPropertiesSet() throws Exception {
+        mailExecutorService = new ThreadPoolExecutor(1, 1, 60, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>())
+        mailExecutorService.allowCoreThreadTimeOut(true)
+        setPoolSize(mailConfigurationProperties.poolSize)
+    }
 }

@@ -4,12 +4,12 @@ Mail can be sent using the @mailService@ via the @sendMail@ method. Here is an e
 
 {code}
 mailService.sendMail {
-   to "fred@gmail.com", "ginger\@gmail.com"
-   from "john@gmail.com"
-   cc "marge@gmail.com", "ed\@gmail.com"
-   bcc "joe@gmail.com"
-   subject "Hello John"
-   text "this is some text"
+    to "fred@gmail.com", "ginger\@gmail.com"
+    from "john@gmail.com"
+    cc "marge@gmail.com", "ed\@gmail.com"
+    bcc "joe@gmail.com"
+    subject "Hello John"
+    text "this is some text"
 }
 {code}
 
@@ -19,8 +19,8 @@ The @sendMail@ method is injected into all controllers to simplify access:
 
 {code}
 sendMail {
-   to "fred@g2one.com"
-   subject "Hello Fred"
-   text "How are you?"
+    to "fred@g2one.com"
+    subject "Hello Fred"
+    text "How are you?"
 }
 {code}

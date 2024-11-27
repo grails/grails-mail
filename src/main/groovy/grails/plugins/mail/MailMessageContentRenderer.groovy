@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package grails.plugins.mail
 
 import grails.core.GrailsApplication
@@ -71,7 +70,7 @@ class MailMessageContentRenderer {
     }
 
     MailMessageContentRender render(Writer out, String templateName, Map model, Locale locale, String pluginName = null) {
-        RenderEnvironment.with(grailsApplication.mainContext, out, locale) { RenderEnvironment env ->
+        return RenderEnvironment.with(grailsApplication.mainContext, out, locale) { RenderEnvironment env ->
             Template template = createTemplate(templateName, env.controllerName, pluginName)
             if (model instanceof Map) {
                 template.make(model).writeTo(out)
@@ -106,7 +105,7 @@ class MailMessageContentRenderer {
                 throw new IllegalArgumentException("Could not locate mail body ${templateName}. Is it in a plugin? If so you must pass the plugin name in the [plugin] variable")
             }
         }
-        template as GroovyPageTemplate
+        return template as GroovyPageTemplate
     }
 
     protected String getContextPath(String pluginName) {
@@ -117,7 +116,7 @@ class MailMessageContentRenderer {
                 contextPath = "${plugin.pluginPath}/grails-app/views"
             }
         }
-        contextPath
+        return contextPath
     }
 
     private static class RenderEnvironment {
@@ -125,7 +124,7 @@ class MailMessageContentRenderer {
         final PrintWriter out
         final Locale locale
         final ApplicationContext applicationContext
-		final LinkGenerator grailsLinkGenerator
+        final LinkGenerator grailsLinkGenerator
 
         private GrailsWebRequest originalRequestAttributes
         private GrailsWebRequest renderRequestAttributes
@@ -135,7 +134,7 @@ class MailMessageContentRenderer {
             this.out = out instanceof PrintWriter ? out as PrintWriter : new PrintWriter(out)
             this.locale = locale
             this.applicationContext = applicationContext
-			this.grailsLinkGenerator = applicationContext.getBean('grailsLinkGenerator', LinkGenerator)
+            this.grailsLinkGenerator = applicationContext.getBean('grailsLinkGenerator', LinkGenerator)
         }
 
         private void init() {
@@ -181,7 +180,7 @@ class MailMessageContentRenderer {
         /**
          * Establish an environment with a specific locale
          */
-         static Object with(ApplicationContext applicationContext, Writer out, Locale locale, Closure block) {
+        static Object with(ApplicationContext applicationContext, Writer out, Locale locale, Closure block) {
             def env = new RenderEnvironment(applicationContext, out, locale)
             env.init()
             try {
@@ -192,11 +191,11 @@ class MailMessageContentRenderer {
         }
 
         String getControllerName() {
-            renderRequestAttributes.controllerName
+            return renderRequestAttributes.controllerName
         }
     }
 
-   /*
+    /*
      * Creates the request object used during the GSP rendering pipeline for render operations outside a web request.
      * Created dynamically to avoid issues with different servlet API spec versions.
      */
@@ -211,7 +210,7 @@ class MailMessageContentRenderer {
             String contentType = null
             String characterEncoding = 'UTF-8'
 
-            Proxy.newProxyInstance(HttpServletRequest.classLoader, [HttpServletRequest] as Class[], new InvocationHandler() {
+            return Proxy.newProxyInstance(HttpServletRequest.classLoader, [HttpServletRequest] as Class[], new InvocationHandler() {
                 Object invoke(proxy, Method method, Object[] args) {
 
                     String methodName = method.name

@@ -14,12 +14,12 @@ The Grails mail plugin provides a convenient DSL for _sending_ email. It support
 Mail can be sent using the `mailService.sendMail` method. Here is an example…
 ```groovy
 mailService.sendMail {
-   to 'fred@gmail.com', 'ginger@gmail.com'
-   from 'john@gmail.com'
-   cc 'marge@gmail.com', 'ed@gmail.com'
-   bcc 'joe@gmail.com'
-   subject 'Hello John'
-   text 'this is some text'
+    to 'fred@gmail.com', 'ginger@gmail.com'
+    from 'john@gmail.com'
+    cc 'marge@gmail.com', 'ed@gmail.com'
+    bcc 'joe@gmail.com'
+    subject 'Hello John'
+    text 'this is some text'
 }
 ```
 

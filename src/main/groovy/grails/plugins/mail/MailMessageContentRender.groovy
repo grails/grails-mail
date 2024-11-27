@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package grails.plugins.mail
 
 import groovy.transform.CompileStatic
@@ -35,6 +34,6 @@ class MailMessageContentRender {
     }
 
     boolean isHtml() {
-        contentType in HTML_CONTENT_TYPES
+        return contentType in HTML_CONTENT_TYPES
     }
 }

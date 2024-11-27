@@ -42,10 +42,10 @@ class MailMessageBuilderFactory {
     }
 
     MailMessageBuilder createBuilder(MailConfigurationProperties properties) {
-        new MailMessageBuilder(mailSender, properties, mailMessageContentRenderer)
+        return new MailMessageBuilder(mailSender, properties, mailMessageContentRenderer)
     }
 
     boolean isMimeCapable() {
-        mailSender instanceof JavaMailSender
+        return mailSender instanceof JavaMailSender
     }
 }

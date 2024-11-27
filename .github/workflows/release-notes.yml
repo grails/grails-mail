@@ -8,13 +8,13 @@ on:
   pull_request:
     types: [opened, reopened, synchronize, labeled]
   pull_request_target:
-    types: [opened, reopened, synchronize, labeled]       
+    types: [opened, reopened, synchronize, labeled]
   workflow_dispatch:
 jobs:
   release_notes:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Check if it has release drafter config file
         id: check_release_drafter
         run: |
